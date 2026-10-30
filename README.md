@@ -8,7 +8,17 @@ npm run dev      # http://localhost:5173
 npm run build    # static site in dist/ (relative base: works on GitHub Pages or Netlify)
 ```
 
+Don't use VS Code Live Server / Five Server or open `index.html` directly. The source has to go through Vite (it handles the CSS import and the `matter-js` import), so those give a blank page.
+
 Routes: `#/` (home) and `#/challenge/<slug>`.
+
+## Building a challenge with Claude
+
+[CLAUDE.md](CLAUDE.md) holds the rules, the `ctx` contract and the definition of done. Claude Code loads it automatically. Each challenge folder has a `SPEC.md` with its requirements and a ready-to-paste prompt, for example:
+
+> Build challenge 3 (`03-mouse-drag`) following CLAUDE.md and src/challenges/03-mouse-drag/SPEC.md. Only edit files in that folder.
+
+The full original spec is in [docs/BUILD_PROMPT.md](docs/BUILD_PROMPT.md).
 
 ## Working on a challenge
 

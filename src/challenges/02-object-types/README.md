@@ -1,6 +1,6 @@
 # Challenge 2: Add multiple types of objects
 
-Route: `#/challenge/object-types` · Spec: section 5, Challenge 2, of the build prompt.
+Route: `#/challenge/object-types` · Spec: [SPEC.md](SPEC.md).
 
 **Status:** stub (copy of `_template`). Owner: _unassigned_.
 

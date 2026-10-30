@@ -1,6 +1,6 @@
 # Challenge 1: Create a world with gravity
 
-Route: `#/challenge/gravity` · Spec: section 5, Challenge 1, of the build prompt.
+Route: `#/challenge/gravity` · Spec: [SPEC.md](SPEC.md).
 
 **Status:** stub (copy of `_template`). Owner: _unassigned_.
 

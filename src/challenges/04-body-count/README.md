@@ -1,6 +1,6 @@
 # Challenge 4: Adjust numbers of bodies dynamically
 
-Route: `#/challenge/body-count` · Spec: section 5, Challenge 4, of the build prompt.
+Route: `#/challenge/body-count` · Spec: [SPEC.md](SPEC.md).
 
 **Status:** stub (copy of `_template`). Owner: _unassigned_.
 

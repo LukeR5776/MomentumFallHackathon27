@@ -1,6 +1,6 @@
 # Challenge 6: Additional Forces
 
-Route: `#/challenge/forces` · Spec: section 5, Challenge 6, of the build prompt.
+Route: `#/challenge/forces` · Spec: [SPEC.md](SPEC.md).
 
 **Status:** stub (copy of `_template`). Owner: _unassigned_.
 

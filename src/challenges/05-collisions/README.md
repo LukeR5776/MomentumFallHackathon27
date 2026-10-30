@@ -1,6 +1,6 @@
 # Challenge 5: Collision Detection
 
-Route: `#/challenge/collisions` · Spec: section 5, Challenge 5, of the build prompt.
+Route: `#/challenge/collisions` · Spec: [SPEC.md](SPEC.md).
 
 **Status:** stub (copy of `_template`). Owner: _unassigned_.
 

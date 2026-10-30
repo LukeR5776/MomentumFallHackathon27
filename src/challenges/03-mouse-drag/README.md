@@ -1,6 +1,6 @@
 # Challenge 3: Add mouse dragging
 
-Route: `#/challenge/mouse-drag` · Spec: section 5, Challenge 3, of the build prompt.
+Route: `#/challenge/mouse-drag` · Spec: [SPEC.md](SPEC.md).
 
 **Status:** stub (copy of `_template`). Owner: _unassigned_.
 
