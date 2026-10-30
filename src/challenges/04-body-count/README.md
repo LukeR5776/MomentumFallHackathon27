@@ -2,19 +2,23 @@
 
 Route: `#/challenge/body-count` · Spec: [SPEC.md](SPEC.md).
 
-**Status:** stub (copy of `_template`). Owner: _unassigned_.
+**Status:** done. Owner: shomarie.
 
 ## What it does
-_TODO_
+Open-top tank filled with circles. A **Bodies** slider (0–80) adds or removes balls live. Mouse dragging stays available so you can poke the pile while scaling it.
 
 ## Controls
-_TODO_
+- **Bodies** — live target count (adds/removes without Reset)
+- **+10 / −10 / Clear** — quick population edits
+- **Live count** readout
+- **Gravity Y** / **Restitution** — applied to current bodies
 
 ## Matter.js APIs used
-_TODO_ (keep in sync with `apis` in `index.js`)
+`Bodies.circle`, `Composite.add`, `Composite.remove`, `MouseConstraint`
 
 ## Stretch goals done
-- [ ] _TODO_
+- [x] Live add/remove without Reset
+- [x] Mouse drag enabled while adjusting count
 
 ## Known issues
 _None yet._
