@@ -6,7 +6,7 @@ Route: `#/challenge/mouse-drag`
 
 ## What it does
 
-Five boxes of different sizes and densities rest on a static platform inside the tank. Pointer and touch drags use `helpers.addMouse()`: the grabbed box turns accent, and a line-colored spring runs from the pointer to the grab point. Releasing mid-drag keeps the box's velocity, so a fast release throws it.
+Five chamfered boxes of different sizes and densities rest on a static platform inside the tank. The box under the pointer picks up an accent edge before it is grabbed. Pointer and touch drags use `helpers.addMouse()`: the grabbed box turns accent, and a line-colored spring runs from the pointer to the grab point. Releasing mid-drag keeps the box's velocity, so a fast release throws it.
 
 Shift-click toggles a box between dynamic and static. Pinned boxes are drawn in the wall color and stay put until you shift-click them again or respawn.
 
@@ -33,4 +33,4 @@ Shared Pause, Step, and Reset still apply. Reset rebuilds the page.
 
 ## Known issues
 
-Shift-click is a mouse shortcut, so touch can drag but cannot pin a box. Respawn clears pins. The platform is rebuilt on resize; boxes already in the air stay where they are.
+Shift-click is a mouse shortcut, so touch can drag but cannot pin a box. A pinned box is drawn in the wall color with a small ink mark. Respawn clears pins. The platform is rebuilt on resize; boxes already in the air stay where they are.

@@ -23,6 +23,7 @@ export default {
 
     const tank = helpers.makeTank();
     const bodies = [];
+    const baseFill = new WeakMap();
     const fpsByCount = new Map();
 
     let target = 30;
@@ -50,26 +51,34 @@ export default {
 
     function makeBody() {
       const useCircle = mix === 'circles' || (mix === 'mixed' && Math.random() < 0.5);
-      const y = -size - helpers.randomBetween(0, 36);
-      if (useCircle) {
-        return Bodies.circle(spawnX(size), y, size, {
+      const kind = Math.random() < 0.22 ? 'slateLight' : 'slate';
+      const radius = Math.max(3, size * helpers.randomBetween(0.72, 1.28));
+      const y = -radius - helpers.randomBetween(0, 36);
+      const body = useCircle
+        ? Bodies.circle(spawnX(radius), y, radius, {
           restitution: 0.45,
           friction: 0.04,
           frictionAir: 0.01,
           label: 'circle',
-          render: theme.body('slate'),
-        });
-      }
-      const w = size * 2;
-      const h = w * helpers.randomBetween(0.75, 1.45);
-      return Bodies.rectangle(spawnX(Math.max(w, h) / 2), y, w, h, {
-        restitution: 0.2,
-        friction: 0.25,
-        frictionAir: 0.01,
-        angle: helpers.randomBetween(-0.5, 0.5),
-        label: 'box',
-        render: theme.body('slate'),
-      });
+          render: theme.body(kind),
+        })
+        : Bodies.rectangle(
+          spawnX(radius),
+          y,
+          radius * 2,
+          radius * helpers.randomBetween(1.5, 2.6),
+          {
+            restitution: 0.2,
+            friction: 0.25,
+            frictionAir: 0.01,
+            angle: helpers.randomBetween(-0.4, 0.4),
+            chamfer: { radius: Math.min(2, radius * 0.2) },
+            label: 'box',
+            render: theme.body(kind),
+          },
+        );
+      baseFill.set(body, theme[kind]);
+      return body;
     }
 
     function addOne() {
@@ -152,7 +161,7 @@ export default {
     const plot = document.createElement('canvas');
     plot.setAttribute('aria-label', 'FPS versus body count');
     plot.style.width = '100%';
-    plot.style.height = '72px';
+    plot.style.height = '88px';
     plot.style.display = 'block';
     plot.style.margin = '0.35rem 0 0.6rem';
     plotAnchor.el.insertAdjacentElement('afterend', plot);
@@ -187,8 +196,11 @@ export default {
 
     ctx.on(engine, 'afterUpdate', () => {
       for (const body of bodies) {
-        const fill = body.speed > FAST_SPEED ? theme.accent : theme.slate;
+        const fast = body.speed > FAST_SPEED;
+        const fill = fast ? theme.accent : baseFill.get(body);
+        const stroke = fast ? theme.accentSoft : theme.wall;
         if (body.render.fillStyle !== fill) body.render.fillStyle = fill;
+        if (body.render.strokeStyle !== stroke) body.render.strokeStyle = stroke;
       }
     });
 
@@ -213,11 +225,19 @@ export default {
         fpsByCount.set(bucket, fps);
       }
 
-      g.font = `400 34px ${theme.fonts.serif}`;
+      const countText = String(bodies.length);
+      g.font = `400 36px ${theme.fonts.serif}`;
       g.fillStyle = theme.ink;
       g.textAlign = 'right';
       g.textBaseline = 'top';
-      g.fillText(String(bodies.length), ctx.width - 14, 10);
+      const countWidth = g.measureText(countText).width;
+      g.fillText(countText, ctx.width - 16, 10);
+      g.strokeStyle = theme.wall;
+      g.lineWidth = 1;
+      g.beginPath();
+      g.moveTo(ctx.width - 16 - countWidth, 50);
+      g.lineTo(ctx.width - 16, 50);
+      g.stroke();
 
       drawPlot(plot, fpsByCount, theme);
     });
@@ -226,7 +246,7 @@ export default {
 
 function drawPlot(plot, fpsByCount, theme) {
   const cssW = plot.clientWidth || 220;
-  const cssH = 72;
+  const cssH = 88;
   const pr = window.devicePixelRatio || 1;
   const pxW = Math.max(1, Math.floor(cssW * pr));
   const pxH = Math.max(1, Math.floor(cssH * pr));
@@ -241,13 +261,28 @@ function drawPlot(plot, fpsByCount, theme) {
   g.lineWidth = 1;
   g.strokeRect(0.5, 0.5, cssW - 1, cssH - 1);
 
+  const point = (count, sample) => ({
+    x: 8 + (count / 1000) * (cssW - 16),
+    y: 8 + (1 - Math.max(0, Math.min(sample, 90)) / 90) * (cssH - 22),
+  });
+  const y60 = point(0, 60).y;
+  g.strokeStyle = theme.wall;
+  g.beginPath();
+  g.moveTo(8, y60);
+  g.lineTo(cssW - 8, y60);
+  g.stroke();
+  g.font = `500 10px ${theme.fonts.sans}`;
+  g.fillStyle = theme.slateLight;
+  g.textAlign = 'left';
+  g.textBaseline = 'middle';
+  g.fillText('60', 10, y60 - 7);
+  g.textBaseline = 'bottom';
+  g.fillText('0', 8, cssH - 3);
+  g.textAlign = 'right';
+  g.fillText('1000', cssW - 6, cssH - 3);
+
   const entries = [...fpsByCount.entries()].sort((a, b) => a[0] - b[0]);
   if (!entries.length) return;
-
-  const point = (count, sample) => ({
-    x: 6 + (count / 1000) * (cssW - 12),
-    y: 8 + (1 - Math.max(0, Math.min(sample, 90)) / 90) * (cssH - 16),
-  });
 
   g.beginPath();
   g.strokeStyle = theme.line;

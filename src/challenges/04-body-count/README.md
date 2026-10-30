@@ -8,7 +8,7 @@ Route: `#/challenge/body-count`
 
 A slider from 0 to 1000 sets how many bodies are in the tank. The world is not rebuilt: new bodies spawn from random points along the top, and removals delete the most recently added bodies first. The default target is 30. A large counter in the top-right of the canvas shows the live count.
 
-Body size and mix apply only to bodies spawned after the change. Fast bodies (speed above 4 engine units) turn accent; slow ones stay slate.
+Body size and mix apply only to bodies spawned after the change. Each new body varies a little around that size, and about one in five is `slateLight`. Fast bodies (speed above 8) turn accent and return to their own color when they slow down.
 
 Adds are spread across frames (20 per tick) so a jump to 1000 does not freeze the page. Removes run up to 400 per tick, and Remove all clears immediately.
 

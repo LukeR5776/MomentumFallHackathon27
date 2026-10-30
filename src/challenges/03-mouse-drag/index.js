@@ -1,5 +1,22 @@
 // Drag boxes off a platform. The pointer is tied to the grab point by a spring.
 
+function grabPoint(body, pointB) {
+  if (!pointB) return null;
+  const cos = Math.cos(body.angle);
+  const sin = Math.sin(body.angle);
+  return {
+    x: body.position.x + pointB.x * cos - pointB.y * sin,
+    y: body.position.y + pointB.x * sin + pointB.y * cos,
+  };
+}
+
+function dot(g, x, y, r, color) {
+  g.beginPath();
+  g.fillStyle = color;
+  g.arc(x, y, r, 0, Math.PI * 2);
+  g.fill();
+}
+
 const TOY = 0x0002;
 
 const BOXES = [
@@ -85,6 +102,7 @@ export default {
       savedLook = { fill: body.render.fillStyle, stroke: body.render.strokeStyle };
       body.render.fillStyle = theme.accent;
       body.render.strokeStyle = theme.accentSoft;
+      body.render.lineWidth = 1.5;
       if (lockRotation) lock(body);
     };
 
@@ -93,6 +111,7 @@ export default {
       if (!rest) return;
       body.render.fillStyle = rest.fill;
       body.render.strokeStyle = rest.stroke;
+      body.render.lineWidth = rest.lineWidth;
     };
 
     const toggleStatic = (body) => {
@@ -125,16 +144,18 @@ export default {
       });
       const legH = Math.max(8, bottom - surfaceY - deckH);
       const inset = Math.min(22, width * 0.14);
+      const legX = [cx - width / 2 + inset, cx + width / 2 - inset];
       const leg = (x) => Bodies.rectangle(x, surfaceY + deckH + legH / 2, 6, legH, {
         isStatic: true,
         label: 'platform-leg',
         render: theme.body('wall'),
       });
-      platform = [
-        deck,
-        leg(cx - width / 2 + inset),
-        leg(cx + width / 2 - inset),
-      ];
+      const foot = (x) => Bodies.rectangle(x, bottom - 3, 18, 6, {
+        isStatic: true,
+        label: 'platform-foot',
+        render: theme.body('wall'),
+      });
+      platform = [deck, ...legX.flatMap((x) => [leg(x), foot(x)])];
       Composite.add(world, platform);
     }
 
@@ -163,11 +184,16 @@ export default {
           friction: 0.45,
           frictionStatic: 0.7,
           restitution: 0.05,
+          chamfer: { radius: Math.min(3, w * 0.14, h * 0.14) },
           label: spec.label,
           collisionFilter: { category: TOY },
           render: theme.body(spec.kind),
         });
-        restLook.set(body, { fill: body.render.fillStyle, stroke: body.render.strokeStyle });
+        restLook.set(body, {
+          fill: body.render.fillStyle,
+          stroke: body.render.strokeStyle,
+          lineWidth: body.render.lineWidth,
+        });
         Composite.add(world, body);
         boxes.push(body);
         cursor += w + gap * scale;
@@ -181,6 +207,18 @@ export default {
     ctx.canvas.style.cursor = 'grab';
 
     const { Query } = Matter;
+    let hovered = null;
+
+    const setHover = (body) => {
+      if (hovered === body) return;
+      if (hovered && hovered !== held && !hovered.isStatic) applyRestLook(hovered);
+      hovered = body && !body.isStatic ? body : null;
+      if (hovered && hovered !== held) {
+        hovered.render.strokeStyle = theme.accentSoft;
+        hovered.render.lineWidth = 1.5;
+      }
+    };
+
     // Pin on mousedown. A click can end before the next engine tick, so startdrag
     // never runs for a short shift-click. bodiesAt skips static bodies, so search the toys.
     ctx.listen(ctx.canvas, 'mousedown', (event) => {
@@ -199,8 +237,14 @@ export default {
         ignoreGrab = true;
         return;
       }
+      setHover(null);
       ctx.canvas.style.cursor = 'grabbing';
       paintHeld(body);
+    });
+
+    ctx.on(mouseConstraint, 'mousemove', () => {
+      if (held) return;
+      setHover(Query.point(boxes, mouse.position)[0] || null);
     });
 
     ctx.on(mouseConstraint, 'enddrag', () => {
@@ -258,6 +302,27 @@ export default {
         12,
         16,
         { color: theme.ink, size: 12 },
+      );
+
+      for (const box of boxes) {
+        if (!box.isStatic) continue;
+        const s = 3.5;
+        g.strokeStyle = theme.ink;
+        g.lineWidth = 1;
+        g.strokeRect(box.position.x - s, box.position.y - s, s * 2, s * 2);
+      }
+
+      if (!held || mouseConstraint.constraint.render.visible === false) return;
+      const grab = grabPoint(held, mouseConstraint.constraint.pointB);
+      if (!grab) return;
+      dot(g, grab.x, grab.y, 3.5, theme.accentSoft);
+      dot(g, mouse.position.x, mouse.position.y, 2.5, theme.ink);
+      helpers.drawLabel(
+        g,
+        held.mass.toFixed(2),
+        held.position.x,
+        held.bounds.min.y - 10,
+        { align: 'center', size: 11, color: theme.ink },
       );
     });
   },
