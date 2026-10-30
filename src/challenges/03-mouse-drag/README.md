@@ -2,19 +2,24 @@
 
 Route: `#/challenge/mouse-drag` · Spec: section 5, Challenge 3, of the build prompt.
 
-**Status:** stub (copy of `_template`). Owner: _unassigned_.
+**Status:** done. Owner: shomarie.
 
 ## What it does
-_TODO_
+Static tank + shelf with boxes and circles. `helpers.addMouse()` wires a `MouseConstraint` so you can grab any dynamic body; the spring line shows while dragging. Stiffness and damping change how snappy or floaty the grab feels.
 
 ## Controls
-_TODO_
+- **Stiffness** / **Damping** — mouse-constraint spring feel
+- **Show drag line** — toggle constraint render
+- **Gravity Y**
+- **Nudge all** — impulse on every dynamic body
+- **Grabbed** readout — label of the body under the pointer
 
 ## Matter.js APIs used
-_TODO_ (keep in sync with `apis` in `index.js`)
+`Mouse`, `MouseConstraint`, `Constraint`, `Bodies.rectangle`, `Bodies.circle`, `Composite.add`
 
 ## Stretch goals done
-- [ ] _TODO_
+- [x] Tunable stiffness / damping
+- [x] Grabbed-body readout + drag hint overlay
 
 ## Known issues
 _None yet._
