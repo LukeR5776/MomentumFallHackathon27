@@ -4,4 +4,13 @@ import { defineConfig } from 'vite';
 // (GitHub Pages project sites, Netlify, or opening dist/ locally).
 export default defineConfig({
   base: './',
+  server: {
+    // Allow Cloudflare / localhost.run / localtunnel public hosts.
+    allowedHosts: true,
+    host: true,
+  },
+  preview: {
+    allowedHosts: true,
+    host: true,
+  },
 });
