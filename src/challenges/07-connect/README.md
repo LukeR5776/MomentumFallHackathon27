@@ -1,6 +1,6 @@
 # Challenge 7: Connect bodies
 
-Route: `#/challenge/connect` · Spec: section 5, Challenge 7, of the build prompt.
+Route: `#/challenge/connect` · Spec: [SPEC.md](SPEC.md).
 
 **Status:** stub (copy of `_template`). Owner: _unassigned_.
 

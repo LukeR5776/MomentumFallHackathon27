@@ -1,6 +1,6 @@
 # Challenge 8: Show stats
 
-Route: `#/challenge/stats` · Spec: section 5, Challenge 8, of the build prompt.
+Route: `#/challenge/stats` · Spec: [SPEC.md](SPEC.md).
 
 **Status:** stub (copy of `_template`). Owner: _unassigned_.
 
