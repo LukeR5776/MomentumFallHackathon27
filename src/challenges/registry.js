@@ -22,14 +22,14 @@ export const challenges = [
   {
     n: 3,
     slug: 'mouse-drag',
-    title: 'Add mouse dragging',
+    title: 'Zen rearrange — drag your thoughts',
     load: () => import('./03-mouse-drag/index.js'),
     thumb: new URL('./03-mouse-drag/thumb.svg', import.meta.url).href,
   },
   {
     n: 4,
     slug: 'body-count',
-    title: 'Adjust numbers of bodies dynamically',
+    title: 'Day Jar — fill & arrange your wins',
     load: () => import('./04-body-count/index.js'),
     thumb: new URL('./04-body-count/thumb.svg', import.meta.url).href,
   },
