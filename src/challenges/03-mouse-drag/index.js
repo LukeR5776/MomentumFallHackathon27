@@ -1,4 +1,4 @@
-// Drag boxes off a platform. The pointer is tied to the grab point by a spring.
+// Zen rearrange — wellbeing companion. Drag thought-stones; shift-click pins one.
 
 function grabPoint(body, pointB) {
   if (!pointB) return null;
@@ -19,19 +19,19 @@ function dot(g, x, y, r, color) {
 
 const TOY = 0x0002;
 
-const BOXES = [
-  { w: 28, h: 28, density: 0.00035, kind: 'slate', label: 'light box' },
-  { w: 38, h: 38, density: 0.001, kind: 'slateLight', label: 'medium box' },
-  { w: 32, h: 48, density: 0.0032, kind: 'slate', label: 'tall box' },
-  { w: 56, h: 20, density: 0.0012, kind: 'slateLight', label: 'plank' },
-  { w: 30, h: 30, density: 0.006, kind: 'slate', label: 'dense box' },
+const STONES = [
+  { w: 28, h: 28, density: 0.00035, kind: 'slate', label: 'worry' },
+  { w: 38, h: 38, density: 0.001, kind: 'slateLight', label: 'plan' },
+  { w: 32, h: 48, density: 0.0032, kind: 'slate', label: 'idea' },
+  { w: 56, h: 20, density: 0.0012, kind: 'accentSoft', label: 'rest' },
+  { w: 30, h: 30, density: 0.006, kind: 'accent', label: 'thanks' },
 ];
 
 export default {
   slug: 'mouse-drag',
-  title: 'Add mouse dragging',
+  title: 'Zen rearrange — drag your thoughts',
   about:
-    'Drag the boxes with the pointer. A spring follows the cursor: low stiffness feels like a rubber band and high stiffness feels rigid, and letting go mid-swing throws the box. Shift-click a box to pin it, then shift-click again to let it fall.',
+    'A calm companion to the Day Jar. Grab thought-stones (worry, plan, idea, rest, thanks) and rearrange them. Soft grip feels like a rubber band; firm grip snaps into place. Shift-click pins a stone so it can hold the pile — messy is fine.',
   apis: [
     'MouseConstraint',
     'Constraint.stiffness',
@@ -139,7 +139,7 @@ export default {
         isStatic: true,
         friction: 0.95,
         frictionStatic: 1,
-        label: 'platform',
+        label: 'ledge',
         render: theme.body('wall'),
       });
       const legH = Math.max(8, bottom - surfaceY - deckH);
@@ -147,12 +147,12 @@ export default {
       const legX = [cx - width / 2 + inset, cx + width / 2 - inset];
       const leg = (x) => Bodies.rectangle(x, surfaceY + deckH + legH / 2, 6, legH, {
         isStatic: true,
-        label: 'platform-leg',
+        label: 'ledge-leg',
         render: theme.body('wall'),
       });
       const foot = (x) => Bodies.rectangle(x, bottom - 3, 18, 6, {
         isStatic: true,
-        label: 'platform-foot',
+        label: 'ledge-foot',
         render: theme.body('wall'),
       });
       platform = [deck, ...legX.flatMap((x) => [leg(x), foot(x)])];
@@ -172,11 +172,11 @@ export default {
       const width = deck.bounds.max.x - deck.bounds.min.x;
       const cx = deck.position.x;
       const gap = 10;
-      const natural = BOXES.reduce((sum, box) => sum + box.w, 0) + gap * (BOXES.length - 1);
+      const natural = STONES.reduce((sum, box) => sum + box.w, 0) + gap * (STONES.length - 1);
       const scale = Math.min(1, (width - 28) / natural);
 
       let cursor = cx - (natural * scale) / 2;
-      for (const spec of BOXES) {
+      for (const spec of STONES) {
         const w = spec.w * scale;
         const h = spec.h * scale;
         const body = Bodies.rectangle(cursor + w / 2, surfaceY - h / 2 - 2, w, h, {
@@ -219,8 +219,6 @@ export default {
       }
     };
 
-    // Pin on mousedown. A click can end before the next engine tick, so startdrag
-    // never runs for a short shift-click. bodiesAt skips static bodies, so search the toys.
     ctx.listen(ctx.canvas, 'mousedown', (event) => {
       if (!event.shiftKey || event.button !== 0) return;
       const body = Query.point(boxes, mouse.position)[0];
@@ -257,9 +255,9 @@ export default {
     ctx.listen(window, 'mouseup', clearIgnore);
     ctx.listen(window, 'touchend', clearIgnore);
 
-    controls.section('Drag');
+    controls.section('Tend the garden');
     controls.slider({
-      label: 'Stiffness',
+      label: 'Grip',
       min: 0.01,
       max: 1,
       step: 0.01,
@@ -267,7 +265,7 @@ export default {
       onInput: (v) => { mouseConstraint.constraint.stiffness = v; },
     });
     controls.slider({
-      label: 'Damping',
+      label: 'Softness',
       min: 0,
       max: 1,
       step: 0.01,
@@ -275,12 +273,12 @@ export default {
       onInput: (v) => { mouseConstraint.constraint.damping = v; },
     });
     controls.toggle({
-      label: 'Show grab line',
+      label: 'Show tether',
       value: true,
       onChange: (v) => { mouseConstraint.constraint.render.visible = v; },
     });
     controls.toggle({
-      label: 'Lock rotation while dragging',
+      label: 'Steady hand (no spin)',
       value: false,
       onChange: (v) => {
         lockRotation = v;
@@ -288,20 +286,39 @@ export default {
         if (!v) unlock();
       },
     });
-    const massReadout = controls.readout({ label: 'Mass (engine units)', value: '—' });
+    const holdingReadout = controls.readout({ label: 'Holding', value: '—' });
 
-    controls.section('Boxes');
-    controls.button({ label: 'Respawn boxes', onClick: spawnBoxes });
+    controls.section('Reset energy');
+    controls.button({ label: 'Reset stones', onClick: spawnBoxes });
+    controls.button({
+      label: 'Gentle breeze',
+      onClick: () => {
+        for (const b of boxes) {
+          if (b.isStatic) continue;
+          Body.setVelocity(b, {
+            x: helpers.randomBetween(-2.4, 2.4),
+            y: helpers.randomBetween(-3.2, -0.4),
+          });
+        }
+      },
+    });
 
     ctx.onOverlay((g) => {
       const body = mouseConstraint.body;
-      massReadout.set(body && Number.isFinite(body.mass) ? body.mass.toFixed(2) : '—');
+      holdingReadout.set(body ? body.label : '—');
       helpers.drawLabel(
         g,
-        held ? `Dragging ${held.label}` : 'Drag a box · shift-click pins it',
+        held ? `holding “${held.label}”` : 'Drag a thought-stone · shift-click pins it',
         12,
         16,
         { color: theme.ink, size: 12 },
+      );
+      helpers.drawLabel(
+        g,
+        'messy is fine',
+        12,
+        34,
+        { color: theme.slateLight, size: 11 },
       );
 
       for (const box of boxes) {
@@ -319,7 +336,7 @@ export default {
       dot(g, mouse.position.x, mouse.position.y, 2.5, theme.ink);
       helpers.drawLabel(
         g,
-        held.mass.toFixed(2),
+        held.label,
         held.position.x,
         held.bounds.min.y - 10,
         { align: 'center', size: 11, color: theme.ink },

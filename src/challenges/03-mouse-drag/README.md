@@ -1,36 +1,26 @@
-# Challenge 3: Add mouse dragging
+# Challenge 3: Zen rearrange (wellbeing demo)
 
 Route: `#/challenge/mouse-drag`
 
-**Status:** playable.
+**Status:** playable wellbeing companion.
 
 ## What it does
-
-Five chamfered boxes of different sizes and densities rest on a static platform inside the tank. The box under the pointer picks up an accent edge before it is grabbed. Pointer and touch drags use `helpers.addMouse()`: the grabbed box turns accent, and a line-colored spring runs from the pointer to the grab point. Releasing mid-drag keeps the box's velocity, so a fast release throws it.
-
-Shift-click toggles a box between dynamic and static. Pinned boxes are drawn in the wall color and stay put until you shift-click them again or respawn.
+Thought-stones (`worry`, `plan`, `idea`, `rest`, `thanks`) sit on a ledge. Drag with a spring tether; Shift-click pins a stone. Soft grip = rubber band; firm grip = snappy. Gentle breeze nudges the pile — messy is fine.
 
 ## Controls
-
-- Stiffness (0.01–1). Low values lag like a rubber band; 1 is rigid.
-- Damping (0–1).
-- Show grab line.
-- Lock rotation while dragging (sets inertia to Infinity for the drag, then restores it).
-- Mass of the body currently held, in engine units.
-- Respawn boxes. Puts the original five back on the platform.
-
-Shared Pause, Step, and Reset still apply. Reset rebuilds the page.
+- **Grip** / **Softness** — mouse-constraint stiffness / damping
+- **Show tether**
+- **Steady hand (no spin)** — lock inertia while dragging
+- **Holding** readout
+- **Reset stones** / **Gentle breeze**
 
 ## Matter.js APIs used
-
-`MouseConstraint`, `Constraint.stiffness`, `Constraint.damping`, `Bodies.rectangle`, `Body.setStatic`, `Body.setInertia`, `Composite.add`, `Composite.remove`.
+`MouseConstraint`, `Constraint.stiffness`, `Constraint.damping`, `Bodies.rectangle`, `Body.setStatic`, `Body.setInertia`, `Composite.add`, `Composite.remove`
 
 ## Stretch goals done
-
-- [x] Dragged mass readout
-- [x] Lock rotation while dragging
-- [x] Shift-click toggles static / dynamic
+- [x] Wellbeing labels + calm copy
+- [x] Dragged mass → holding label
+- [x] Lock rotation / pin / breeze
 
 ## Known issues
-
-Shift-click is a mouse shortcut, so touch can drag but cannot pin a box. A pinned box is drawn in the wall color with a small ink mark. Respawn clears pins. The platform is rebuilt on resize; boxes already in the air stay where they are.
+Shift-click pin is mouse-only (touch can drag but not pin).
