@@ -1,25 +1,36 @@
 # Challenge 3: Add mouse dragging
 
-Route: `#/challenge/mouse-drag` · Spec: section 5, Challenge 3, of the build prompt.
+Route: `#/challenge/mouse-drag`
 
-**Status:** done. Owner: shomarie.
+**Status:** playable.
 
 ## What it does
-Static tank + shelf with boxes and circles. `helpers.addMouse()` wires a `MouseConstraint` so you can grab any dynamic body; the spring line shows while dragging. Stiffness and damping change how snappy or floaty the grab feels.
+
+Five chamfered boxes of different sizes and densities rest on a static platform inside the tank. The box under the pointer picks up an accent edge before it is grabbed. Pointer and touch drags use `helpers.addMouse()`: the grabbed box turns accent, and a line-colored spring runs from the pointer to the grab point. Releasing mid-drag keeps the box's velocity, so a fast release throws it.
+
+Shift-click toggles a box between dynamic and static. Pinned boxes are drawn in the wall color and stay put until you shift-click them again or respawn.
 
 ## Controls
-- **Stiffness** / **Damping** — mouse-constraint spring feel
-- **Show drag line** — toggle constraint render
-- **Gravity Y**
-- **Nudge all** — impulse on every dynamic body
-- **Grabbed** readout — label of the body under the pointer
+
+- Stiffness (0.01–1). Low values lag like a rubber band; 1 is rigid.
+- Damping (0–1).
+- Show grab line.
+- Lock rotation while dragging (sets inertia to Infinity for the drag, then restores it).
+- Mass of the body currently held, in engine units.
+- Respawn boxes. Puts the original five back on the platform.
+
+Shared Pause, Step, and Reset still apply. Reset rebuilds the page.
 
 ## Matter.js APIs used
-`Mouse`, `MouseConstraint`, `Constraint`, `Bodies.rectangle`, `Bodies.circle`, `Composite.add`
+
+`MouseConstraint`, `Constraint.stiffness`, `Constraint.damping`, `Bodies.rectangle`, `Body.setStatic`, `Body.setInertia`, `Composite.add`, `Composite.remove`.
 
 ## Stretch goals done
-- [x] Tunable stiffness / damping
-- [x] Grabbed-body readout + drag hint overlay
+
+- [x] Dragged mass readout
+- [x] Lock rotation while dragging
+- [x] Shift-click toggles static / dynamic
 
 ## Known issues
-_None yet._
+
+Shift-click is a mouse shortcut, so touch can drag but cannot pin a box. A pinned box is drawn in the wall color with a small ink mark. Respawn clears pins. The platform is rebuilt on resize; boxes already in the air stay where they are.
