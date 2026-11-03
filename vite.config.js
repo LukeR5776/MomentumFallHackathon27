@@ -1,9 +1,9 @@
 import { defineConfig } from 'vite';
 
-// GitHub Pages project site: https://luker5776.github.io/MomentumFallHackathon27/
-// Absolute base so assets resolve with or without a trailing slash.
+// Relative base works on GitHub Pages (with trailing slash) and on
+// rawcdn.githack / jsDelivr mirrors of the gh-pages branch — no admin needed.
 export default defineConfig({
-  base: '/MomentumFallHackathon27/',
+  base: './',
   server: {
     allowedHosts: true,
     host: true,
