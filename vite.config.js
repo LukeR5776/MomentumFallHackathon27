@@ -1,11 +1,10 @@
 import { defineConfig } from 'vite';
 
-// Relative base so the static build works from any sub-path
-// (GitHub Pages project sites, Netlify, or opening dist/ locally).
+// GitHub Pages project site: https://luker5776.github.io/MomentumFallHackathon27/
+// Absolute base so assets resolve with or without a trailing slash.
 export default defineConfig({
-  base: './',
+  base: '/MomentumFallHackathon27/',
   server: {
-    // Allow Cloudflare / localhost.run / localtunnel public hosts.
     allowedHosts: true,
     host: true,
   },
