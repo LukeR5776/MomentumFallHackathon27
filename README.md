@@ -1,16 +1,19 @@
 # Fall Hack-a-Thon 2026: Matter.js Simulations
 
-Eight interactive Matter.js sandboxes plus a home grid. Vite + vanilla JS, `matter-js@0.20.0` (pinned).
+**Play Day Jar now (no GitHub Pages needed):**  
+https://raw.githack.com/LukeR5776/MomentumFallHackathon27/gh-pages/index.html
+
+The site defaults to **Day Jar** — a wellbeing sandbox on Matter.js (`base: './'` so it works on the `gh-pages` CDN mirror). Vite + vanilla JS, `matter-js@0.20.0` (pinned).
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173
-npm run build    # static site in dist/ (relative base: works on GitHub Pages or Netlify)
+npm run dev      # http://localhost:5173  → opens Day Jar
+npm run build    # static site in dist/ (relative base)
 ```
 
 Don't use VS Code Live Server / Five Server or open `index.html` directly. The source has to go through Vite (it handles the CSS import and the `matter-js` import), so those give a blank page.
 
-Routes: `#/` (home) and `#/challenge/<slug>`.
+Route: `#/challenge/body-count` (Day Jar). Other challenge folders remain in the repo for the hackathon.
 
 ## Building a challenge with Claude
 
