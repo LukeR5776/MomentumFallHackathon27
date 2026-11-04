@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#05070d" />
+  <title>HOUSE EDGE · An Interactive Probability &amp; Physics Lab</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2305070d'/%3E%3Ccircle cx='11' cy='11' r='4' fill='%2339ff88'/%3E%3Ccircle cx='21' cy='21' r='4' fill='%23b45cff'/%3E%3Ccircle cx='21' cy='11' r='4' fill='%233fa9ff'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="backdrop" aria-hidden="true"></div>
+
+  <header class="hero">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div>
+        <h1 class="logo">HOUSE<span>EDGE</span></h1>
+        <p class="tagline">An interactive probability &amp; physics lab</p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <p class="presenter">Mr. Hatfield <span>·</span> Math Department</p>
+      <p class="disclaimer">Educational simulator · No real money, no betting, no accounts</p>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- Probability machine -->
+    <section class="panel machine-panel" aria-labelledby="machine-title">
+      <div class="panel-head">
+        <h2 id="machine-title">Probability Machine</h2>
+        <span class="chip" id="rule-chip">p(win) 47.37% · pays 1.00×</span>
+      </div>
+      <div class="machine">
+        <canvas id="machine-canvas" aria-label="Matter.js simulation of balls falling into win and loss zones"></canvas>
+        <div class="hud">
+          <div><span class="hud-label">Balls released</span><span class="hud-value" id="hud-released">0</span></div>
+          <div><span class="hud-label">In machine</span><span class="hud-value" id="hud-live">0</span></div>
+          <div><span class="hud-label">Queued</span><span class="hud-value" id="hud-queued">0</span></div>
+        </div>
+        <div class="last-result" id="last-result" aria-live="polite">Press a run button to start</div>
+      </div>
+      <div class="ticker-wrap">
+        <span class="ticker-label">Last 48 trials</span>
+        <div class="ticker" id="ticker"></div>
+      </div>
+      <p class="note">Each outcome is drawn with <code>Math.random()</code> using the probability you set. The physics engine then guides a ball of that color into its zone. Big batches animate a proportional sample of up to 120 balls.</p>
+    </section>
+
+    <!-- Controls -->
+    <section class="panel controls-panel" aria-labelledby="controls-title">
+      <div class="panel-head">
+        <h2 id="controls-title">Game Rules</h2>
+      </div>
+
+      <div class="presets" role="group" aria-label="Presets">
+        <button type="button" class="preset" data-p="50" data-r="1">Fair coin</button>
+        <button type="button" class="preset active" data-p="47.368421" data-r="1" title="18 of 38 pockets, pays 1 to 1">Roulette red</button>
+        <button type="button" class="preset" data-p="2.631579" data-r="35" title="1 of 38 pockets, pays 35 to 1">Single number</button>
+        <button type="button" class="preset" data-p="55" data-r="1">Player edge</button>
+      </div>
+
+      <label class="slider">
+        <span class="slider-row"><span>Probability of winning</span><output id="out-win" class="glow-green">47.37%</output></span>
+        <input type="range" id="in-win" min="0" max="100" step="0.01" value="47.37" />
+      </label>
+      <label class="slider">
+        <span class="slider-row"><span>Probability of losing</span><output id="out-loss" class="glow-purple">52.63%</output></span>
+        <input type="range" id="in-loss" min="0" max="100" step="0.01" value="52.63" class="purple" />
+      </label>
+      <div class="sum-bar" aria-hidden="true"><span id="sum-win"></span><span id="sum-loss"></span></div>
+      <p class="sum-note">Win + loss always total <strong>100%</strong>. Moving one slider moves the other.</p>
+
+      <label class="slider">
+        <span class="slider-row"><span>Payout multiplier (net win R)</span><output id="out-payout" class="glow-blue">1.00×</output></span>
+        <input type="range" id="in-payout" min="0.1" max="40" step="0.05" value="1" class="blue" />
+      </label>
+      <label class="slider">
+        <span class="slider-row"><span>Number of simulated trials</span><output id="out-trials" class="glow-blue">500</output></span>
+        <input type="range" id="in-trials" min="10" max="10000" step="10" value="500" class="blue" />
+      </label>
+
+      <div class="buttons">
+        <button type="button" class="btn" data-run="1">Run 1 Trial</button>
+        <button type="button" class="btn" data-run="100">Run 100 Trials</button>
+        <button type="button" class="btn" data-run="1000">Run 1,000 Trials</button>
+        <button type="button" class="btn btn-accent" id="run-custom">Run 500 Trials</button>
+        <button type="button" class="btn btn-ghost" id="reset">Reset Simulation</button>
+      </div>
+
+      <div class="formula">
+        <div class="formula-title">Expected value per 1 unit at risk</div>
+        <div class="formula-math" id="formula">EV = p × R − (1 − p) × 1</div>
+        <p>A win pays a net <strong>R</strong> units and a loss costs <strong>1</strong> unit. The <strong>house edge</strong> is −EV × 100%: the player's average expected loss as a percentage of the amount at risk, under this simplified model.</p>
+      </div>
+      <p class="toast" id="toast" role="status"></p>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats" aria-label="Live statistics">
+      <article class="stat"><span class="stat-label">Total trials</span><span class="stat-value glow-blue" id="s-trials">0</span></article>
+      <article class="stat"><span class="stat-label">Wins</span><span class="stat-value glow-green" id="s-wins">0</span></article>
+      <article class="stat"><span class="stat-label">Losses</span><span class="stat-value glow-purple" id="s-losses">0</span></article>
+      <article class="stat"><span class="stat-label">Win %</span><span class="stat-value glow-green" id="s-winpct">0.00%</span><span class="stat-sub" id="s-winpct-sub">theory 47.37%</span></article>
+      <article class="stat"><span class="stat-label">Loss %</span><span class="stat-value glow-purple" id="s-losspct">0.00%</span><span class="stat-sub" id="s-losspct-sub">theory 52.63%</span></article>
+      <article class="stat"><span class="stat-label">Avg return / trial</span><span class="stat-value" id="s-avg">0.0000</span><span class="stat-sub">actual, units</span></article>
+      <article class="stat"><span class="stat-label">Expected value</span><span class="stat-value" id="s-ev">−0.0526</span><span class="stat-sub">theory, units / trial</span></article>
+      <article class="stat"><span class="stat-label">Theoretical house edge</span><span class="stat-value" id="s-edge">5.26%</span><span class="stat-sub" id="s-edge-sub">house wins on average</span></article>
+    </section>
+
+    <!-- Charts -->
+    <section class="charts" aria-label="Charts">
+      <article class="panel chart-card wide">
+        <div class="panel-head"><h2>Cumulative result</h2><span class="chip">actual vs expected ±2σ</span></div>
+        <div class="chart-box"><canvas id="c-cumulative"></canvas></div>
+      </article>
+      <article class="panel chart-card">
+        <div class="panel-head"><h2>Wins vs losses</h2><span class="chip">expected vs actual</span></div>
+        <div class="chart-box"><canvas id="c-bars"></canvas></div>
+      </article>
+      <article class="panel chart-card">
+        <div class="panel-head"><h2>Running win rate</h2><span class="chip">law of large numbers</span></div>
+        <div class="chart-box"><canvas id="c-rate"></canvas></div>
+      </article>
+      <article class="panel chart-card wide">
+        <div class="panel-head">
+          <h2>Probability distribution · wins in <span id="dist-n">500</span> trials</h2>
+          <span class="chip" id="dist-ahead">P(player ahead) —</span>
+        </div>
+        <div class="chart-box"><canvas id="c-dist"></canvas></div>
+        <p class="legend-note"><span class="dot green"></span>player finishes ahead <span class="dot purple"></span>player finishes behind <span class="dot white"></span>your last batch of this size</p>
+      </article>
+    </section>
+
+    <!-- Education -->
+    <section class="panel why" aria-labelledby="why-title">
+      <div class="panel-head"><h2 id="why-title">Why Does the House Win?</h2></div>
+      <div class="why-grid">
+        <article><h3><span class="num">01</span>Probability</h3><p>Probability is how often an outcome happens over the long run. A 47% chance does not mean you win 47 of the next 100 games. It means the win rate settles near 47% as games pile up.</p></article>
+        <article><h3><span class="num">02</span>Expected value</h3><p>Expected value is the average result per game if you could play forever: each outcome times its probability, added up. Here that is <em>p × R − (1 − p)</em>.</p></article>
+        <article><h3><span class="num">03</span>House edge</h3><p>The house edge is the expected loss flipped into a percentage. A 5.26% edge means the player loses about 5.26 units for every 100 units put at risk, on average.</p></article>
+        <article><h3><span class="num">04</span>Short-term chaos</h3><p>Over a few games, randomness is louder than the edge. Streaks happen, and plenty of players walk away ahead. Small samples swing widely.</p></article>
+        <article><h3><span class="num">05</span>Long-run certainty</h3><p>The law of large numbers pulls the average toward the expected value as trials increase. The spread shrinks like 1/√n, so over thousands of games the edge wins every time.</p></article>
+      </div>
+
+      <div class="compare-head">
+        <h3>Small sample vs large sample</h3>
+        <p>We simulate <strong>400 players</strong> under the current rules. Each player in the first group plays <strong>10 games</strong>. Each player in the second group plays <strong>1,000 games</strong>. The charts show each player's average return per game. The dashed line is the expected value.</p>
+        <button type="button" class="btn btn-ghost" id="resample">Re-run 800 players</button>
+      </div>
+      <div class="compare">
+        <article class="compare-card">
+          <div class="compare-top"><span>10 games each</span><span class="big glow-green" id="small-ahead">—</span></div>
+          <div class="compare-sub" id="small-sub">finished ahead</div>
+          <div class="chart-box small"><canvas id="c-small"></canvas></div>
+        </article>
+        <article class="compare-card">
+          <div class="compare-top"><span>1,000 games each</span><span class="big glow-purple" id="large-ahead">—</span></div>
+          <div class="compare-sub" id="large-sub">finished ahead</div>
+          <div class="chart-box small"><canvas id="c-large"></canvas></div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">HOUSE EDGE · Statistics Department Hackathon · All results are computed in your browser. Physics by Matter.js, charts by Chart.js.</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/matter-js@0.20.0/build/matter.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" defer></script>
+  <script src="js/math.js" defer></script>
+  <script src="js/machine.js" defer></script>
+  <script src="js/charts.js" defer></script>
+  <script src="js/app.js" defer></script>
+</body>
+</html>
